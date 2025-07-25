@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceWorld AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to bottom right, #1e1e2f, #2c3e50);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      color: #00ffd0;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      font-size: 1.2rem;
+      color: #cccccc;
+    }
+    textarea, select, button {
+      width: 100%;
+      max-width: 600px;
+      margin: 0.75rem auto;
+      padding: 1rem;
+      border-radius: 15px;
+      border: none;
+      font-size: 1.1rem;
+      background-color: #ffffff11;
+      color: white;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    textarea::placeholder {
+      color: #aaa;
+    }
+    button {
+      background-color: #00ffd0;
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #00dab3;
+    }
+    .pro-button {
+      margin-top: 2rem;
+      background: linear-gradient(90deg, #ff416c, #ff4b2b);
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #222;
+      padding: 2rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(0, 255, 208, 0.3);
+    }
+    .modal-content h2 {
+      margin-top: 0;
+      color: #00ffd0;
+    }
+    .modal-content p {
+      margin: 1rem 0;
+      color: #ccc;
+    }
+    .close {
+      margin-top: 1.5rem;
+      background: #ff4b2b;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>VoiceWorld AI</h1>
+    <p>Мгновенный перевод и озвучка на все языки</p>
+  </header>  <textarea id="inputText" rows="4" placeholder="Введите текст..."></textarea>  <select id="targetLang">
+    <option value="">Выберите язык перевода</option>
+    <option value="en">Английский</option>
+    <option value="az">Азербайджанский</option>
+    <option value="ru">Русский</option>
+    <option value="tr">Турецкий</option>
+    <option value="fr">Французский</option>
+    <option value="zh">Китайский</option>
+    <option value="ar">Арабский</option>
+  </select>
+  <button onclick="translateText()">Перевести и Озвучить</button>
+  <textarea id="outputText" rows="4" placeholder="Переведённый текст появится здесь..."></textarea>  <button class="pro-button" onclick="document.getElementById('proModal').style.display='flex'">
+    🔒 Получить PRO-доступ
+  </button>  <div class="modal" id="proModal">
+    <div class="modal-content">
+      <h2>PRO-подписка</h2>
+      <p>1 месяц — $5</p>
+      <p>6 месяцев — $25</p>
+      <p>12 месяцев — $40</p>
+      <p>Отправьте сумму на карту:</p>
+      <p style="font-weight: bold; font-size: 1.1rem;">4169738811947708</p>
+      <p>После оплаты — напишите нам в <a href="https://t.me/nadas08" target="_blank">Telegram</a></p>
+      <button class="close" onclick="document.getElementById('proModal').style.display='none'">Закрыть</button>
+    </div>
+  </div>  <script>
+    async function translateText() {
+      const text = document.getElementById("inputText").value;
+      const targetLang = document.getElementById("targetLang").value;
+
+      if (!text || !targetLang) {
+        alert("Введите текст и выберите язык.");
+        return;
+      }
+
+      try {
+        const res = await axios.post("https://libretranslate.de/translate", {
+          q: text,
+          source: "auto",
+          target: targetLang,
+          format: "text"
+        }, {
+          headers: { 'accept': 'application/json' }
+        });
+
+        const translated = res.data.translatedText;
+        document.getElementById("outputText").value = translated;
+
+        const utterance = new SpeechSynthesisUtterance(translated);
+        utterance.lang = targetLang;
+        speechSynthesis.speak(utterance);
+      } catch (err) {
+        alert("Ошибка перевода: " + err);
+      }
+    }
+  </script></body>
+</html>
